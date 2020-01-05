@@ -20,8 +20,101 @@ server.listen(3000,()=>{
 
 
 });
-
-io.on("connection",function(client){
+var colors =[[191,191,63],[191,63,63],[232,32,122],[200,32,32]] 
+var players = {}
+var elements = [new Body([-300,-300,600,60],200),new Body([-300,300,600,60],200),new Body([-360,-300,60,660],200)]
+var lastPosition = [0,0]
+io.on("connection",function(socket){
   console.log("novo cliente")
-  client.emit("welcome",{id:client.id})
-})
+  players[socket.id]= new Player([lastPosition[0]+64,lastPosition[1],64,96],colors[Math.floor(Math.random()*colors.length)]);
+  players[socket.id].id = socket.id
+  lastPosition[0]=players[socket.id].position[0]
+  socket.emit("welcome",JSON.stringify({players,elements:elements}))
+  socket.broadcast.emit("welcome",JSON.stringify({players,elements:elements}))
+  /*  */
+  socket.on("input",(msg)=>{
+    let client = JSON.parse(msg);
+ 
+    let player = players[client.playerId]
+      client.keys[65] == 1 ? player.position[0]-=player.speed: null;
+      client.keys[68] == 1 ? player.position[0]+=player.speed: null;
+
+    client.keys[83] == 1 ? player.position[1]+=player.speed: null;
+    client.keys[87] == 1 ? player.position[1]-=player.speed: null;
+    //detectColision(player,Object.keys(players).map(key=>players[key]))
+    detectColision(player,elements)
+    updateClients(socket,client.playerId);
+   
+    
+  });
+  socket.on("disconnect",function(scoket){
+    console.log(socket.id, "has disconnected");
+    delete players[socket.id];
+    updateClients(socket,socket.id);
+    
+  })
+
+  
+});
+function detectColision(player,elements){
+  elements.forEach(corpo=>{
+     var d1x = corpo.position[0]  - (player.position[0]+player.width);
+     var d1y = corpo.position[1]  - (player.position[1]+player.height);
+     var d2x = player.position[0] - (corpo.position[0] +corpo.width);
+     var d2y =player.position[1] -  (corpo.position[1] +corpo.height);
+
+     if(d1x > 0 || d1y > 0){}
+     else if(d2x > 0 || d2y > 0){}
+     else{
+       if(d1x > d2x && d1x > d1y && d1x > d2y ){
+        player.position[0]=corpo.position[0]-player.width;
+        
+      } 
+       else if(d2x > d1x  && d2x > d1y && d2x > d2y){
+         player.position[0] = corpo.position[0]+corpo.width;
+        
+       
+       
+        } 
+       else if(d1y > d2x && d1y > d1x && d1y > d2y ){
+         player.position[1] = corpo.position[1]-player.height;
+       
+         
+      
+        } 
+       else if(d2y > d1x  && d2y > d1y && d2y > d2x){
+         player.position[1] = corpo.position[1]+corpo.height;
+        
+ 
+       }
+     }
+  })
+}
+function updateClients(socket,id){
+  socket.emit("update",JSON.stringify(id in players ? players : id));
+  socket.broadcast.emit("update",JSON.stringify(id in players ? players : id))
+}
+function Piso(){
+  
+}
+function Body(rect = [0,0,32,32],color = 123){
+  this.color = color;
+  this.position = [rect[0],rect[1]];
+  this.width = rect[2];
+  this.height = rect[3];
+  this.speed = 10;
+  this.velocity = [0,0]
+  this.stroke = 100;
+  this.animation = [];
+  this.update = ()=>{
+    this.position[0]+=this.velocity[0];
+    this.position[1]+=this.velocity[1];
+  };
+ 
+}
+function Player(rect,color){
+  Body.call(this,rect,color);
+  
+}
+
+
