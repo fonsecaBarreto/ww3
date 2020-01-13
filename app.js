@@ -94,9 +94,7 @@ function updateClients(socket,id){
   socket.emit("update",JSON.stringify(id in players ? players : id));
   socket.broadcast.emit("update",JSON.stringify(id in players ? players : id))
 }
-function Piso(){
-  
-}
+
 function Body(rect = [0,0,32,32],color = 123){
   this.color = color;
   this.position = [rect[0],rect[1]];
