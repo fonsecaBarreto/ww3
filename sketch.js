@@ -12,7 +12,7 @@ var cam = {
   speed : 8
 }
 window.onload = ()=>{
-  socket = io.connect('http://10.0.10.193:3000'); 
+  socket = io.connect(); 
   socket.on("connect",function(){
     socket.on("welcome",function(msg){
       resp = JSON.parse(msg);
