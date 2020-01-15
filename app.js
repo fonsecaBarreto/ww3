@@ -13,16 +13,17 @@ server.listen(3000,()=>{console.log("runnign")});
 var colors =[[191,191,63],[191,63,63],[232,32,122],[200,32,32]] 
 var players = {}
 var elements = [
-                new Body([-400,-400,1280,960],200,0,{key:"background",rect:[0,0,1280,960]}),
-                new Body([-172,-115,48,18],200,1,0),  
-                new Body([248,-178,48,18],200,1,0),  
+                new Body([-400,-400,1280,960,0],200,{key:"background",rect:[0,0,1280,960],step:{r:0,c:0}}),
+                new Body([-172,-115,48,18,1],200,{key:"arvore",rect:[-130,-275,289,308],step:{r:0,c:0}}),  
+                new Body([248,-178,48,18,1],200,{key:"arvore",rect:[-130,-275,289,308],step:{r:0,c:0}}),  
+                new Body([512,460,48,18,1],200,0),  
                 
                
               ]
 var lastPosition = [0,0];
 io.on("connection",function(socket){
   console.log("novo cliente");
-  let player = new Player([lastPosition[0]+64,lastPosition[1],38,50],colors[Math.floor(Math.random()*colors.length)],1,{key:"char",rect:[-12,-40,64,96]});
+  let player = new Player([Math.floor((Math.random()*128)+1),Math.floor((Math.random()*128)+1),32,48,1],colors[Math.floor(Math.random()*colors.length)],{key:"char",rect:[-16,-44,64,96],step:{r:0,c:0}});
   players[socket.id]= player
  
   players[socket.id].id = socket.id
@@ -32,17 +33,23 @@ io.on("connection",function(socket){
   /*  */
   socket.on("input",(msg)=>{
     let client = JSON.parse(msg);
- 
-    let player = players[client.playerId];
+    try{
 
-    client.keys[65] == 1 ? player.position[0]-=player.speed: null;
-    client.keys[68] == 1 ? player.position[0]+=player.speed: null;
+      if(client.playerId in players){
 
-    client.keys[83] == 1 ? player.position[1]+=player.speed: null;
-    client.keys[87] == 1 ? player.position[1]-=player.speed: null;
-    //detectColision(player,Object.keys(players).map(key=>players[key]))
-    detectColision(player,elements)
-    updateClients(socket,client.playerId);
+        
+        let player = players[client.playerId];
+
+        client.keys[65] == 1 ? player.position[0]-=player.speed: null;
+        client.keys[68] == 1 ? player.position[0]+=player.speed: null;
+
+        client.keys[83] == 1 ? player.position[1]+=player.speed: null;
+        client.keys[87] == 1 ? player.position[1]-=player.speed: null;
+        //detectColision(player,Object.keys(players).map(key=>players[key]))
+        detectColision(player,elements)
+        updateClients(socket,client.playerId);
+      }
+    }catch(err){throw err}
    
     
   });
@@ -59,7 +66,7 @@ function detectColision(player,elements){
   elements.forEach(corpo=>{
  
     try{
-    if(corpo.zIndex == player.zIndex){
+    if(corpo.position[2] == player.position[2]){
      var d1x = corpo.position[0]  - (player.position[0]+player.width);
      var d1y = corpo.position[1]  - (player.position[1]+player.height);
      var d2x = player.position[0] - (corpo.position[0] +corpo.width);
@@ -82,11 +89,10 @@ function updateClients(socket,id){
   socket.broadcast.emit("update",JSON.stringify(id in players ? players : id))
 }
 
-function Body(rect = [0,0,32,32],color = 123,zIndex = 1,texture = {key:"gray",rect:[0,0,64,64]}){
-  this.texture = texture
-  this.zIndex = zIndex;
+function Body(rect = [0,0,32,32,1],color = 123,texture = {key:"gray",rect:[0,0,64,64],step:{r:0,c:0}}){
+  this.texture = texture;
   this.color = color;
-  this.position = [rect[0],rect[1]];
+  this.position = [rect[0],rect[1],rect[4]];
   this.width = rect[2];
   this.height = rect[3];
   this.speed = 10;
@@ -99,12 +105,8 @@ function Body(rect = [0,0,32,32],color = 123,zIndex = 1,texture = {key:"gray",re
   };
  
 }
-function Player(rect,color,zIndex,texture){
-  console.log(rect,color,zIndex,texture)
-  Body.call(this,rect,color,zIndex,texture);
-  this.rect = rect;
-  this.rect.height/=2;
-  
+function Player(rect,color,texture){
+  Body.call(this,rect,color,texture);
 }
 
 
