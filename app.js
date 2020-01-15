@@ -13,9 +13,9 @@ server.listen(3000,()=>{console.log("runnign")});
 var colors =[[191,191,63],[191,63,63],[232,32,122],[200,32,32]] 
 var players = {}
 var elements = [
-                new Body([-400,-400,1280,960,0],200,{key:"background",rect:[0,0,1280,960],step:{r:0,c:0}}),
-                new Body([-172,-115,48,18,1],200,{key:"arvore",rect:[-130,-275,289,308],step:{r:0,c:0}}),  
-                new Body([248,-178,48,18,1],200,{key:"arvore",rect:[-130,-275,289,308],step:{r:0,c:0}}),  
+                new Body([-400,-400,1280,960,0],200,{key:"background",rect:[0,0,1280,960],step:{r:0,c:0},static:true}),
+                new Body([-172,-115,48,18,1],200,{key:"arvore",rect:[-130,-275,289,308],step:{r:0,c:0},static:false}),  
+                new Body([248,-178,48,18,1],200,{key:"arvore",rect:[-130,-275,289,308],step:{r:0,c:0},static:false}),  
                 new Body([512,460,48,18,1],200,0),  
                 
                
@@ -23,7 +23,7 @@ var elements = [
 var lastPosition = [0,0];
 io.on("connection",function(socket){
   console.log("novo cliente");
-  let player = new Player([Math.floor((Math.random()*128)+1),Math.floor((Math.random()*128)+1),32,48,1],colors[Math.floor(Math.random()*colors.length)],{key:"char",rect:[-16,-44,64,96],step:{r:0,c:0}});
+  let player = new Player([Math.floor((Math.random()*128)+1),Math.floor((Math.random()*128)+1),32,48,1],colors[Math.floor(Math.random()*colors.length)],{key:"char",rect:[-16,-44,64,96],step:{r:0,c:0},static:false});
   players[socket.id]= player
  
   players[socket.id].id = socket.id
@@ -89,7 +89,9 @@ function updateClients(socket,id){
   socket.broadcast.emit("update",JSON.stringify(id in players ? players : id))
 }
 
-function Body(rect = [0,0,32,32,1],color = 123,texture = {key:"gray",rect:[0,0,64,64],step:{r:0,c:0}}){
+function Body(rect = [0,0,32,32,1],color = 123,texture = {key:"gray",rect:[0,0,64,64],step:{r:0,c:0}, static : false}){
+
+
   this.texture = texture;
   this.color = color;
   this.position = [rect[0],rect[1],rect[4]];

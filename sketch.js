@@ -103,13 +103,37 @@ async function draw() {
     if((grau>= inicio+(n*abertura) && grau< inicio+(n+1)*abertura)){direction = n;break;}
   }
 
-  /*  */
+
+  //Array.sort([comparer])
+  
   background(220);
+  /* let after = []
+  for (let i=0; i<elements.length; i++)
+  {
+    let element = elements[i];
+    if (element.texture.static != false)
+    {
+      if ( element.position[1]< players[playerId].position[1]) 
+      {
+          element.position[2] = 0;
+          render(element,cam);
+      }
+      else {after.push(element);}
+    }
+    render(element,cam);
+  }
+
+  } */
+  /*  */
+
+
   if(elements.length > 0){elements.forEach(element =>{if(element.position[2] == 0){render(element,cam)};});}
     
 
 /*  */
-  if(Object.keys(players).length > 0){
+
+//Array.sort()
+if(Object.keys(players).length > 0){
     Object.keys(players).forEach(key=>{
       let player = players[key];
       //player.texture.step.r = direction == 1 ? 5 : direction == 0 ? 6: direction==2? 4 : 7;
@@ -123,12 +147,7 @@ async function draw() {
     })
   }
 /*  */
-  if(elements.length > 0){elements.forEach(element =>{if(element.position[2] >=1){render(element,cam)};});}
-
-
-   
-
-
+ // if(after.length > 0){after.forEach(element =>{if(element.position[2] >=1){render(element,cam)};});}
     /*  */
   /* dart manager */
   /* for(let i =0;i<darts.length;i++){
@@ -199,4 +218,4 @@ function Dart(rect){
       this.iPos[1]+=yv;
     }
 
-}
+  }
