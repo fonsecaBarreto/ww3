@@ -117,7 +117,7 @@ async function draw() {
       (keys[68] == true)?player.texture.step.r = 7:4;
       (keys[83] == true)?player.texture.step.r = 4:4;
       (keys[87] == true)?player.texture.step.r = 6:4;
-      (keys[65] == true | keys[68] == true || keys[83] == true || keys[87] == true) ? player.texture.step.c < 7 ? player.texture.step.c+=.25 : player.texture.step.c= 0:null;
+      (keys[65] == true | keys[68] == true || keys[83] == true || keys[87] == true) ? player.texture.step.c < 7 ? player.texture.step.c+=.25 : player.texture.step.c= 0: player.texture.step.c = 0;
       render(player,cam);
       document.querySelector("#player-position").innerHTML = `${players[playerId].position[0]}, ${players[playerId].position[1]}`;
     })
